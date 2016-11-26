@@ -75,7 +75,7 @@ app.use(session({
 }));
 
 app.get('/', function(req, res) {
-  res.send(data.data.devices);
+  res.send(JSON.parse(data).data.devices);
 });
 
 /**
