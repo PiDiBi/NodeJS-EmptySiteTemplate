@@ -75,7 +75,7 @@ app.use(session({
 }));
 
 app.get('/', function(req, res) {
-  res.send(data);
+  res.send(data.data.devices);
 });
 
 /**
