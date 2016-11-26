@@ -24,6 +24,8 @@ var session = require('express-session');
 var EventSource = require('eventsource');
 var openurl = require('openurl');
 
+var data;
+
 // Change for production apps.
 // This secret is used to sign session ID cookies.
 var SUPER_SECRET_KEY = 'keyboard-cat';
@@ -62,6 +64,7 @@ function startStreaming(token) {
 
   source.addEventListener('put', function(e) {
     console.log('\n' + e.data);
+    data = e.data;
   });
 
   source.addEventListener('open', function(e) {
@@ -126,6 +129,10 @@ app.get('/auth/failure', function(req, res) {
   res.send('Authentication failed. Please try again.');
 });
 
+app.get('/', function(req, res) {
+  res.send(data);
+});
+
 /**
  * Get port from environment and store in Express.
  */
@@ -142,5 +149,5 @@ var server = http.createServer(app);
  */
 server.listen(port);
 
-openurl.open('http://' + process.env.host + ':' + port + '/auth/nest');
-console.log('Please click Accept in the browser window that just opened.');
+//openurl.open('http://' + process.env.host + ':' + port + '/auth/nest');
+//console.log('Please click Accept in the browser window that just opened.');
