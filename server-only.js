@@ -34,6 +34,13 @@ var SUPER_SECRET_KEY = 'keyboard-cat';
 var NEST_API_URL = 'https://developer-api.nest.com';
 
 startStreaming(process.env.NEST_TOKEN);
+var connectionString = 'process.env.IOT_CONN';
+
+// use factory function from AMQP-specific package
+var clientFromConnectionString = require('azure-iot-device-amqp').clientFromConnectionString;
+
+// AMQP-specific factory function returns Client object from core package
+var client = clientFromConnectionString(connectionString);
 
 /**
  * Start REST Streaming device events given a Nest token.
@@ -42,8 +49,32 @@ function startStreaming(token) {
   var source = new EventSource(NEST_API_URL + '?auth=' + token);
 
   source.addEventListener('put', function(e) {
-    console.log('\n' + e.data);
-    data = e.data;
+    //console.log('\n' + e.data);
+    data = JSON.parse(e.data).data;
+    var clearedData = JSON.stringify(JSON.parse(e.data).data.devices);
+    console.log('\n' + clearedData);    
+
+    // use Message object from core package
+    var Message = require('azure-iot-device').Message;
+
+    var connectCallback = function (err) {
+      if (err) {
+        console.error('Could not connect: ' + err);
+      } else {
+        console.log('Client connected');
+        var msg = new Message(clearedData);
+        client.sendEvent(msg, function (err) {
+          if (err) {
+            console.log(err.toString());
+          } else {
+            console.log('Message sent');
+          };
+        });
+      };
+    };
+    client.open(connectCallback);
+
+
   });
 
   source.addEventListener('open', function(e) {
@@ -75,7 +106,7 @@ app.use(session({
 }));
 
 app.get('/', function(req, res) {
-  res.send(JSON.parse(data).data.devices);
+  res.send(data.devices);
 });
 
 /**
