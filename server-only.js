@@ -34,7 +34,7 @@ var SUPER_SECRET_KEY = 'keyboard-cat';
 var NEST_API_URL = 'https://developer-api.nest.com';
 
 startStreaming(process.env.NEST_TOKEN);
-var connectionString = 'process.env.IOT_CONN';
+var connectionString = process.env.IOT_CONN;
 
 // use factory function from AMQP-specific package
 var clientFromConnectionString = require('azure-iot-device-amqp').clientFromConnectionString;
