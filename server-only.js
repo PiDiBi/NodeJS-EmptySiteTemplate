@@ -142,5 +142,5 @@ var server = http.createServer(app);
  */
 server.listen(port);
 
-openurl.open('http://' + request.headers.host + ':' + port + '/auth/nest');
+openurl.open('http://' + process.env.host + ':' + port + '/auth/nest');
 console.log('Please click Accept in the browser window that just opened.');
