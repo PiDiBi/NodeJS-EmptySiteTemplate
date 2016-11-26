@@ -33,28 +33,7 @@ var SUPER_SECRET_KEY = 'keyboard-cat';
 // This API will emit events from this URL.
 var NEST_API_URL = 'https://developer-api.nest.com';
 
-// PassportJS options. See http://passportjs.org/docs for more information.
-var passportOptions = {
-  failureRedirect: '/auth/failure', // Redirect to another page on failure.
-};
-
-passport.use(new NestStrategy({
-  // Read credentials from your environment variables.
-  clientID: process.env.NEST_ID,
-  clientSecret: process.env.NEST_SECRET
-}));
-
-/**
- * No user data is available in the Nest OAuth
- * service, just return the empty user objects.
- */
-passport.serializeUser(function(user, done) {
-  done(null, user);
-});
-
-passport.deserializeUser(function(user, done) {
-  done(null, user);
-});
+startStreaming(process.env.NEST_TOKEN);
 
 /**
  * Start REST Streaming device events given a Nest token.
@@ -94,40 +73,6 @@ app.use(session({
   resave: false,
   saveUninitialized: false
 }));
-app.use(passport.initialize());
-app.use(passport.session());
-
-/**
- * Listen for calls and redirect the user to the Nest OAuth
- * URL with the correct parameters.
- */
-app.get('/auth/nest', passport.authenticate('nest', passportOptions));
-
-/**
- * Upon return from the Nest OAuth endpoint, grab the user's
- * accessToken and start streaming the events.
- */
-app.get('/auth/nest/callback', passport.authenticate('nest', passportOptions),
-  function(req, res) {
-    var token = req.user.accessToken;
-
-    if (token) {
-      console.log('Success! Token acquired: ' + token);
-      res.send('Success! You may now close this browser window.');
-      startStreaming(token);
-    } else {
-      console.log('An error occurred! No token acquired.');
-      res.send('An error occurred. Please try again.');
-    }
-});
-
-/**
- * When authentication fails, present the user with
- * an error requesting they try the request again.
- */
-app.get('/auth/failure', function(req, res) {
-  res.send('Authentication failed. Please try again.');
-});
 
 app.get('/', function(req, res) {
   res.send(data);
